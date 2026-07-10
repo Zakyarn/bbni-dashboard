@@ -1,0 +1,174 @@
+<!-- index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>BBNI Stock Prediction</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- FLATPICKR -->
+
+    <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <h1>
+            PT Bank Negara Indonesia (Persero) Tbk (BBNI.JK)
+        </h1>
+
+        <div class="stock-price">
+
+            <span id="currentPrice">
+                3674.62
+            </span>
+
+            <span id="priceChange">
+                -40.00 (-1.04%)
+            </span>
+
+        </div>
+
+        <div class="close-time">
+
+            At close: Dec 31 at 4:14 PM GMT+7
+
+        </div>
+
+    </div>
+
+    <!-- FILTER -->
+
+    <div class="top-filter">
+
+        <div class="date-picker-box">
+
+            <label>
+                Start Date
+            </label>
+
+            <input
+                type="text"
+                id="startDate"
+            >
+
+        </div>
+
+        <div class="date-picker-box">
+
+            <label>
+                End Date
+            </label>
+
+            <input
+                type="text"
+                id="endDate"
+            >
+
+        </div>
+
+        <button onclick="filterByDate()">
+
+            Apply
+
+        </button>
+
+        <select id="intervalSelect" onchange="filterByDate()">
+
+            <option value="daily">
+                Daily
+            </option>
+
+            <option value="weekly">
+                Weekly
+            </option>
+
+            <option value="monthly">
+                Monthly
+            </option>
+
+        </select>
+
+    </div>
+
+    <!-- INFO CARD -->
+
+    <div class="info-box">
+
+        <div class="card">
+
+            <h3>Open</h3>
+
+            <p id="open"></p>
+
+        </div>
+
+        <div class="card">
+
+            <h3>High</h3>
+
+            <p id="high"></p>
+
+        </div>
+
+        <div class="card">
+
+            <h3>Low</h3>
+
+            <p id="low"></p>
+
+        </div>
+
+        <div class="card">
+
+            <h3>Close</h3>
+
+            <p id="close"></p>
+
+        </div>
+
+        <div class="card">
+
+            <h3>Volume</h3>
+
+            <p id="volume"></p>
+
+        </div>
+
+    </div>
+
+    <!-- CHART -->
+
+    <div class="chart-box">
+
+        <canvas id="stockChart"></canvas>
+
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+
+</html>
