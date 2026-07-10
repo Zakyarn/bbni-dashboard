@@ -1,5 +1,3 @@
-<!-- index.html -->
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -7,19 +5,17 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>BBNI Stock Prediction</title>
+    <title>BBNI Stock Prediction Dashboard</title>
 
     <link rel="stylesheet" href="style.css">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- FLATPICKR -->
-
     <link rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+        href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
 
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
@@ -29,61 +25,57 @@
 
 <div class="container">
 
-    <!-- HEADER -->
+    <!-- ================= HEADER ================= -->
 
     <div class="header">
 
-        <h1>
-            PT Bank Negara Indonesia (Persero) Tbk (BBNI.JK)
-        </h1>
+        <div class="header-left">
 
-        <div class="stock-price">
+            <h1>
+                PT Bank Negara Indonesia (Persero) Tbk (BBNI.JK)
+            </h1>
 
-            <span id="currentPrice">
-                3674.62
-            </span>
-
-            <span id="priceChange">
-                -40.00 (-1.04%)
-            </span>
+            <div class="close-time">
+                Historical Stock Price Dashboard (January 2019 – December 2025)
+            </div>
 
         </div>
 
-        <div class="close-time">
+        <div class="header-right">
 
-            At close: Dec 31 at 4:14 PM GMT+7
+            <div id="currentPrice">
+                0.00
+            </div>
+
+            <div id="priceChange">
+                0.00 (0.00%)
+            </div>
 
         </div>
 
     </div>
 
-    <!-- FILTER -->
+    <!-- ================= FILTER ================= -->
 
     <div class="top-filter">
 
         <div class="date-picker-box">
 
-            <label>
-                Start Date
-            </label>
+            <label>Start Date</label>
 
             <input
                 type="text"
-                id="startDate"
-            >
+                id="startDate">
 
         </div>
 
         <div class="date-picker-box">
 
-            <label>
-                End Date
-            </label>
+            <label>End Date</label>
 
             <input
                 type="text"
-                id="endDate"
-            >
+                id="endDate">
 
         </div>
 
@@ -93,25 +85,21 @@
 
         </button>
 
-        <select id="intervalSelect" onchange="filterByDate()">
+        <select
+            id="intervalSelect"
+            onchange="filterByDate()">
 
-            <option value="daily">
-                Daily
-            </option>
+            <option value="daily">Daily</option>
 
-            <option value="weekly">
-                Weekly
-            </option>
+            <option value="weekly">Weekly</option>
 
-            <option value="monthly">
-                Monthly
-            </option>
+            <option value="monthly">Monthly</option>
 
         </select>
 
     </div>
 
-    <!-- INFO CARD -->
+    <!-- ================= INFO ================= -->
 
     <div class="info-box">
 
@@ -157,13 +145,19 @@
 
     </div>
 
-    <!-- CHART -->
+    <!-- ================= CHART ================= -->
 
     <div class="chart-box">
 
         <canvas id="stockChart"></canvas>
 
     </div>
+
+    <p class="data-source">
+
+        Data Source: Yahoo Finance. Historical stock price data of PT Bank Negara Indonesia (Persero) Tbk. (January 2019 – December 2025).
+
+    </p>
 
 </div>
 
