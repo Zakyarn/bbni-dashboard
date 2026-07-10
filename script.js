@@ -1,230 +1,278 @@
 // script.js
 
 let chart;
-
 let allData = [];
 
-async function loadCSV(){
+async function loadCSV() {
 
-    const response =
-        await fetch('data.csv');
+    try {
 
-    const data =
-        await response.text();
+        const response = await fetch("data.csv");
+        const data = await response.text();
 
-    const rows =
-        data.trim().split('\n').slice(1);
+        const rows = data.trim().split("\n").slice(1);
 
-    rows.forEach(row => {
+        rows.forEach(row => {
 
-        const cols = row.split(',');
+            const cols = row.split(",");
 
-        allData.push({
+            allData.push({
 
-            date: cols[0],
+                date: cols[0],
+                open: parseFloat(cols[1]),
+                high: parseFloat(cols[2]),
+                low: parseFloat(cols[3]),
+                close: parseFloat(cols[4]),
+                volume: parseFloat(cols[5])
 
-            open: parseFloat(cols[1]),
-
-            high: parseFloat(cols[2]),
-
-            low: parseFloat(cols[3]),
-
-            close: parseFloat(cols[4]),
-
-            volume: parseFloat(cols[5])
+            });
 
         });
 
-    });
+        const latest = allData[allData.length - 1];
+        const previous = allData[allData.length - 2];
 
-    const latest =
-        allData[allData.length - 1];
+        document.getElementById("open").innerText =
+            latest.open.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
 
-    document.getElementById('open').innerText =
-        latest.open.toFixed(2);
+        document.getElementById("high").innerText =
+            latest.high.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
 
-    document.getElementById('high').innerText =
-        latest.high.toFixed(2);
+        document.getElementById("low").innerText =
+            latest.low.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
 
-    document.getElementById('low').innerText =
-        latest.low.toFixed(2);
+        document.getElementById("close").innerText =
+            latest.close.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
 
-    document.getElementById('close').innerText =
-        latest.close.toFixed(2);
+        document.getElementById("volume").innerText =
+            latest.volume.toLocaleString("en-US");
 
-    document.getElementById('volume').innerText =
-        latest.volume;
+        document.getElementById("currentPrice").innerText =
+            latest.close.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
 
-    document.getElementById('currentPrice').innerText =
-        latest.close.toFixed(2);
+        // PRICE CHANGE
+        const change = latest.close - previous.close;
+        const percent = (change / previous.close) * 100;
 
-    createChart(allData);
+        const priceChange = document.getElementById("priceChange");
+
+        priceChange.innerText =
+            `${change >= 0 ? "+" : ""}${change.toFixed(2)} (${percent.toFixed(2)}%)`;
+
+        priceChange.style.color =
+            change >= 0 ? "#22c55e" : "#ef4444";
+
+        filterByDate();
+
+    } catch (error) {
+
+        alert("Failed to load data.csv");
+
+        console.error(error);
+
+    }
 
 }
 
-function createChart(data){
+function createChart(data) {
 
-    const labels =
-        data.map(item => item.date);
+    const labels = data.map(item => item.date);
 
-    const actualPrices =
-        data.map(item => item.close);
+    const actualPrices = data.map(item => item.close);
 
-    const lowPrices =
-        data.map(item => item.low);
+    const lowPrices = data.map(item => item.low);
 
+    // Prediction (dummy)
     const predictionPrices =
-        actualPrices.map(price =>
-            price + (Math.random() * 60 - 30)
-        );
+        actualPrices.map(price => price * 1.005);
 
-    const ctx =
-        document.getElementById('stockChart');
+    const ctx = document.getElementById("stockChart");
 
-    if(chart){
+    if (chart) {
 
         chart.destroy();
+
     }
 
     chart = new Chart(ctx, {
 
-        type:'line',
+        type: "line",
 
-        data:{
+        data: {
 
-            labels:labels,
+            labels: labels,
 
-            datasets:[
+            datasets: [
 
                 {
 
-                    label:'Actual Price',
+                    label: "Actual Price",
 
-                    data:actualPrices,
+                    data: actualPrices,
 
-                    borderColor:'#22c55e',
+                    borderColor: "#22c55e",
 
-                    borderWidth:3,
+                    borderWidth: 3,
 
-                    tension:0.3,
+                    tension: 0.3,
 
-                    fill:false
+                    fill: false
+
                 },
 
                 {
 
-                    label:'Low Price',
+                    label: "Low Price",
 
-                    data:lowPrices,
+                    data: lowPrices,
 
-                    borderColor:'#ef4444',
+                    borderColor: "#ef4444",
 
-                    borderWidth:3,
+                    borderWidth: 3,
 
-                    tension:0.3,
+                    tension: 0.3,
 
-                    fill:false
+                    fill: false
+
                 },
 
                 {
 
-                    label:'Prediction Price',
+                    label: "Prediction Price",
 
-                    data:predictionPrices,
+                    data: predictionPrices,
 
-                    borderColor:'#3b82f6',
+                    borderColor: "#3b82f6",
 
-                    borderWidth:3,
+                    borderDash: [5, 5],
 
-                    tension:0.3,
+                    borderWidth: 3,
 
-                    borderDash:[5,5],
+                    tension: 0.3,
 
-                    fill:false
+                    fill: false
+
                 }
 
             ]
 
         },
 
-        options:{
+        options: {
 
-            responsive:true,
+            responsive: true,
 
-            maintainAspectRatio:false,
+            maintainAspectRatio: false,
 
-            interaction:{
+            interaction: {
 
-                mode:'index',
+                mode: "index",
 
-                intersect:false
+                intersect: false
+
             },
 
-            plugins:{
+            plugins: {
 
-                tooltip:{
+                tooltip: {
 
-                    titleFont:{
-                        size:22
+                    displayColors: true,
+
+                    titleFont: {
+
+                        size: 13
+
                     },
 
-                    bodyFont:{
-                        size:20
+                    bodyFont: {
+
+                        size: 12
+
                     },
 
-                    padding:15
+                    padding: 12
+
                 },
 
-                legend:{
+                legend: {
 
-                    labels:{
+                    labels: {
 
-                        color:'white',
+                        color: "white",
 
-                        font:{
-                            size:18
+                        font: {
+
+                            size: 12
+
                         }
+
                     }
+
                 }
 
             },
 
-            scales:{
+            scales: {
 
-                x:{
+                x: {
 
-                    ticks:{
+                    ticks: {
 
-                        color:'white',
+                        color: "white",
 
-                        maxTicksLimit:10,
+                        maxTicksLimit: 8,
 
-                        font:{
-                            size:14
+                        font: {
+
+                            size: 12
+
                         }
+
                     },
 
-                    grid:{
+                    grid: {
 
-                        color:'rgba(255,255,255,0.05)'
+                        color: "rgba(255,255,255,.05)"
+
                     }
 
                 },
 
-                y:{
+                y: {
 
-                    ticks:{
+                    beginAtZero: false,
 
-                        color:'white',
+                    ticks: {
 
-                        font:{
-                            size:14
+                        color: "white",
+
+                        font: {
+
+                            size: 12
+
                         }
+
                     },
 
-                    grid:{
+                    grid: {
 
-                        color:'rgba(255,255,255,0.05)'
+                        color: "rgba(255,255,255,.05)"
+
                     }
 
                 }
@@ -237,63 +285,140 @@ function createChart(data){
 
 }
 
-function filterByDate(){
+function filterByDate() {
 
     const startDate =
-        document.getElementById('startDate').value;
+        document.getElementById("startDate").value;
 
     const endDate =
-        document.getElementById('endDate').value;
+        document.getElementById("endDate").value;
+
+    if (new Date(startDate) > new Date(endDate)) {
+
+        alert("Start Date cannot be later than End Date.");
+
+        return;
+
+    }
 
     const interval =
-        document.getElementById('intervalSelect').value;
+        document.getElementById("intervalSelect").value;
 
-    let filtered =
-        allData.filter(item => {
+    let filtered = allData.filter(item => {
 
-            const itemDate =
-                new Date(item.date);
+        const itemDate = new Date(item.date);
 
-            return itemDate >= new Date(startDate)
-                &&
-                   itemDate <= new Date(endDate);
+        return itemDate >= new Date(startDate) &&
+               itemDate <= new Date(endDate);
 
-        });
+    });
 
-    if(interval === 'weekly'){
+    if (filtered.length === 0) {
 
-        filtered =
-            filtered.filter((_, index) =>
-                index % 5 === 0
-            );
+        alert("No data available for the selected date range.");
 
-    }else if(interval === 'monthly'){
+        if (chart) {
 
-        filtered =
-            filtered.filter((_, index) =>
-                index % 20 === 0
-            );
+            chart.destroy();
+
+        }
+
+        return;
+
+    }
+
+    if (interval === "weekly") {
+
+        filtered = filtered.filter((_, index) => index % 5 === 0);
+
+    }
+
+    else if (interval === "monthly") {
+
+        filtered = filtered.filter((_, index) => index % 20 === 0);
 
     }
 
     createChart(filtered);
 
-}
+    // UPDATE INFO CARD
+    const latest = filtered[filtered.length - 1];
 
-/* FLATPICKR */
+    document.getElementById("open").innerText =
+        latest.open.toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+
+    document.getElementById("high").innerText =
+        latest.high.toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+
+    document.getElementById("low").innerText =
+        latest.low.toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+
+    document.getElementById("close").innerText =
+        latest.close.toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+
+    document.getElementById("volume").innerText =
+        latest.volume.toLocaleString("en-US");
+
+    document.getElementById("currentPrice").innerText =
+        latest.close.toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+
+    if (filtered.length > 1) {
+
+    const previous = filtered[filtered.length - 2];
+
+    const change = latest.close - previous.close;
+
+    const percent = (change / previous.close) * 100;
+
+    const priceChange =
+        document.getElementById("priceChange");
+
+    priceChange.innerText =
+        `${change >= 0 ? "+" : ""}${change.toFixed(2)} (${percent.toFixed(2)}%)`;
+
+    priceChange.style.color =
+        change >= 0 ? "#22c55e" : "#ef4444";
+
+}
+}
 
 flatpickr("#startDate", {
 
     dateFormat: "Y-m-d",
 
+    minDate: "2019-01-01",
+
+    maxDate: "2025-12-31",
+
     defaultDate: "2019-01-01"
+
 });
 
 flatpickr("#endDate", {
 
     dateFormat: "Y-m-d",
 
-    defaultDate: "2024-12-31"
+    minDate: "2019-01-01",
+
+    maxDate: "2025-12-31",
+
+    defaultDate: "2025-12-31"
+
 });
 
 loadCSV();
