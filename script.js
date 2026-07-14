@@ -7,10 +7,22 @@ async function loadCSV() {
 
     try {
 
-        const response = await fetch("data.csv");
-        const data = await response.text();
+        const dataResponse = await fetch("data.csv");
+        const dataText = await dataResponse.text();
 
-        const rows = data.trim().split("\n").slice(1);
+        const predictionResponse =
+            await fetch("hasil_prediksi_bbni.csv");
+
+        const predictionText =
+            await predictionResponse.text();
+
+        const rows =
+            dataText.trim().split(/\r?\n/).slice(1);
+
+        const predictionRows =
+            predictionText.trim().split(/\r?\n/).slice(1);
+
+        allData = [];
 
         rows.forEach(row => {
 
@@ -23,65 +35,36 @@ async function loadCSV() {
                 high: parseFloat(cols[2]),
                 low: parseFloat(cols[3]),
                 close: parseFloat(cols[4]),
-                volume: parseFloat(cols[5])
+                volume: parseFloat(cols[5]),
+                prediction: null
 
             });
 
         });
 
-        const latest = allData[allData.length - 1];
-        const previous = allData[allData.length - 2];
+        const predictions = predictionRows.map(row => {
 
-        document.getElementById("open").innerText =
-            latest.open.toLocaleString("en-US", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
+            const cols = row.split(",");
 
-        document.getElementById("high").innerText =
-            latest.high.toLocaleString("en-US", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
+            return parseFloat(cols[3]);
 
-        document.getElementById("low").innerText =
-            latest.low.toLocaleString("en-US", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
+        });
 
-        document.getElementById("close").innerText =
-            latest.close.toLocaleString("en-US", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
+        const testingStart =
+            allData.length - predictions.length;
 
-        document.getElementById("volume").innerText =
-            latest.volume.toLocaleString("en-US");
+        predictions.forEach((prediction, index) => {
 
-        document.getElementById("currentPrice").innerText =
-            latest.close.toLocaleString("en-US", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
+            allData[testingStart + index].prediction =
+                prediction;
 
-        // PRICE CHANGE
-        const change = latest.close - previous.close;
-        const percent = (change / previous.close) * 100;
-
-        const priceChange = document.getElementById("priceChange");
-
-        priceChange.innerText =
-            `${change >= 0 ? "+" : ""}${change.toFixed(2)} (${percent.toFixed(2)}%)`;
-
-        priceChange.style.color =
-            change >= 0 ? "#22c55e" : "#ef4444";
+        });
 
         filterByDate();
 
     } catch (error) {
 
-        alert("Failed to load data.csv");
+        alert("Failed to load CSV data");
 
         console.error(error);
 
@@ -91,17 +74,20 @@ async function loadCSV() {
 
 function createChart(data) {
 
-    const labels = data.map(item => item.date);
+    const labels =
+        data.map(item => item.date);
 
-    const actualPrices = data.map(item => item.close);
+    const actualPrices =
+        data.map(item => item.close);
 
-    const lowPrices = data.map(item => item.low);
+    const lowPrices =
+        data.map(item => item.low);
 
-    // Prediction (dummy)
     const predictionPrices =
-        actualPrices.map(price => price * 1.005);
+        data.map(item => item.prediction);
 
-    const ctx = document.getElementById("stockChart");
+    const ctx =
+        document.getElementById("stockChart");
 
     if (chart) {
 
@@ -122,15 +108,10 @@ function createChart(data) {
                 {
 
                     label: "Actual Price",
-
                     data: actualPrices,
-
                     borderColor: "#22c55e",
-
                     borderWidth: 3,
-
                     tension: 0.3,
-
                     fill: false
 
                 },
@@ -138,15 +119,10 @@ function createChart(data) {
                 {
 
                     label: "Low Price",
-
                     data: lowPrices,
-
                     borderColor: "#ef4444",
-
                     borderWidth: 3,
-
                     tension: 0.3,
-
                     fill: false
 
                 },
@@ -154,18 +130,13 @@ function createChart(data) {
                 {
 
                     label: "Prediction Price",
-
                     data: predictionPrices,
-
                     borderColor: "#3b82f6",
-
                     borderDash: [5, 5],
-
                     borderWidth: 3,
-
                     tension: 0.3,
-
-                    fill: false
+                    fill: false,
+                    spanGaps: false
 
                 }
 
@@ -182,7 +153,6 @@ function createChart(data) {
             interaction: {
 
                 mode: "index",
-
                 intersect: false
 
             },
@@ -234,7 +204,6 @@ function createChart(data) {
                     ticks: {
 
                         color: "white",
-
                         maxTicksLimit: 8,
 
                         font: {
@@ -329,20 +298,22 @@ function filterByDate() {
 
     if (interval === "weekly") {
 
-        filtered = filtered.filter((_, index) => index % 5 === 0);
+        filtered =
+            filtered.filter((_, index) => index % 5 === 0);
 
     }
 
     else if (interval === "monthly") {
 
-        filtered = filtered.filter((_, index) => index % 20 === 0);
+        filtered =
+            filtered.filter((_, index) => index % 20 === 0);
 
     }
 
     createChart(filtered);
 
-    // UPDATE INFO CARD
-    const latest = filtered[filtered.length - 1];
+    const latest =
+        filtered[filtered.length - 1];
 
     document.getElementById("open").innerText =
         latest.open.toLocaleString("en-US", {
@@ -379,40 +350,48 @@ function filterByDate() {
 
     if (filtered.length > 1) {
 
-    const previous = filtered[filtered.length - 2];
+        const previous =
+            filtered[filtered.length - 2];
 
-    const change = latest.close - previous.close;
+        const change =
+            latest.close - previous.close;
 
-    const percent = (change / previous.close) * 100;
+        const percent =
+            (change / previous.close) * 100;
 
-    const priceChange =
-        document.getElementById("priceChange");
+        const priceChange =
+            document.getElementById("priceChange");
 
-    priceChange.innerText =
-        `${change >= 0 ? "+" : ""}${change.toFixed(2)} (${percent.toFixed(2)}%)`;
+        priceChange.innerText =
+            `${change >= 0 ? "+" : ""}${change.toFixed(2)} (${percent.toFixed(2)}%)`;
 
-    priceChange.style.color =
-        change >= 0 ? "#22c55e" : "#ef4444";
+        priceChange.style.color =
+            change >= 0 ? "#22c55e" : "#ef4444";
 
-}
+    }
+
 }
 
 flatpickr("#startDate", {
+
     dateFormat: "Y-m-d",
     minDate: "2019-01-01",
     maxDate: "2025-12-31",
     defaultDate: "2019-01-01",
     disableMobile: true,
     clickOpens: true
+
 });
 
 flatpickr("#endDate", {
+
     dateFormat: "Y-m-d",
     minDate: "2019-01-01",
     maxDate: "2025-12-31",
     defaultDate: "2025-12-31",
     disableMobile: true,
     clickOpens: true
+
 });
 
 loadCSV();
